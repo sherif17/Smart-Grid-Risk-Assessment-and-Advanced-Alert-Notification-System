@@ -1,0 +1,10 @@
+CVE,CVSS v2.0 Base Score,Risk,Host,Host name,Protocol,Port,Name
+CVE-1999-0524,2.1,Low,192.168.1.5,webserver,icmp,0,ICMP Timestamp Request Remote Date Disclosure
+CVE-2009-1918,10,High,192.168.1.10,workstation,tcp,8888,Microsoft Internet Explorer do not properly handle table operations
+CVE-2022-26827,6.9,Medium,192.168.1.66,FileServer ,tcp,443,Windows File Server Resource Management Service Elevation of Privilege Vulnerability
+CVE-1999-0517,7.5,High,192.168.1.90,PLC1,modbus,502,SNMP Agent Default Community Name (public)
+CVE-2018-5313,7.2,High,192.168.1.100,SCADA2,tcp,8000,A vulnerability allows local attackers to escalate privilege on Rapid Scada 5.5.0 because of weak C:\SCADA permissions.
+CVE-1999-0524,2.1,Low,192.168.1.150,SCADA1,icmp,0,ICMP Timestamp Request Remote Date Disclosure
+CVE-2018-5313,8,High,192.168.1.150,SCADA1,tcp,8080,A vulnerability allows local attackers to escalate privilege on Rapid Scada 5.5.0 because of weak C:\SCADA permissions.
+CVE-2018-5314,3,,192.168.1.85,PLC2,modbus,502,
+CVE-2018-5315,2,,192.168.1.50,Rtu,,,

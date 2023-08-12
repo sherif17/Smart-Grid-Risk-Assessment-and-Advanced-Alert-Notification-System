@@ -1,0 +1,299 @@
+# Function to read vertices data from VERTICES.CSV file
+function read_vertices_csv(filename):
+    df_vertices = read_csv(filename)
+    vertices = {}
+    for each row in df_vertices:
+        node_number = row[0]
+        description = row[1]
+        node_type = row[2]
+        probability = row[3]
+        vertices[node_number] = {
+            "description": description,
+            "type": node_type,
+            "probability": probability,
+            "neighbors": []
+        }
+    return vertices
+
+# Function to read arcs data from ARCS.CSV file and update neighbors
+function read_arcs_csv(filename, vertices):
+    df_arcs = read_csv(filename)
+    for each row in df_arcs:
+        from_node = row[0]
+        to_node = row[1]
+        if to_node in vertices:
+            add from_node to vertices[to_node]["neighbors"]
+        else:
+            print "Warning: Node to_node not found in VERTICES.CSV"
+
+# Function for depth-first search
+function dfs(node, path, path_prob, paths_to_1, paths_to_30, visited, vertices):
+    if node not in vertices:
+        print "Warning: Node node not found in VERTICES.CSV"
+        return
+
+    add node to path
+    if vertices[node]["type"] is "AND":
+        path_prob *= vertices[node]["probability"]
+    add node to visited
+
+    if node is 1:
+        add (path, path_prob) to paths_to_1
+    else if node is 30:
+        add (path, path_prob) to paths_to_30
+    else:
+        for each neighbor in vertices[node]["neighbors"]:
+            if neighbor not in visited:
+                dfs(neighbor, path, path_prob, paths_to_1, paths_to_30, visited, vertices)
+
+    remove last element from path
+    remove node from visited
+    if vertices[node]["type"] is "AND":
+        path_prob /= vertices[node]["probability"]
+
+# Function to get host and vulnerabilities of the path
+function get_host_cve(path, risk, df_arcs, df_vertices):
+    vurn_host = {}
+    combined_data = {}
+    for node in path:
+        for v_node, host in zip(df_arcs[df_arcs.columns[0]], df_arcs[df_arcs.columns[1]]):
+            if node == v_node:
+                node_type = df_vertices[df_vertices[df_vertices.columns[0]] == host][df_vertices.columns[2]].values[0]
+                node_details = df_vertices[df_vertices[df_vertices.columns[0]] == host][df_vertices.columns[1]].values[0]
+                if node_type == 'LEAF':
+                    ip = re.findall(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', node_details)
+                    cve = re.findall(r"'(CVE[^']*)'", node_details)
+                    if ip and cve:
+                        vurn_host[ip[0]] = cve[0] if cve else None
+    for host, cve_value in vurn_host.items():
+        if host in risk:
+            combined_data[host] = {
+                'vulnerability': cve_value,
+                'Type count': risk[host]['Type count'],
+                'combined_score': risk[host]['combined_score'],
+                'criticality': risk[host]['criticality'],
+                'host_name': risk[host]['host_name']
+            }
+    very_high = []
+    high = []
+    for key, details in combined_data.items():
+      print(f"  IP Address: {key}")
+      print(f"  Host name: {details['host_name']}")
+      print(f"  Vulnerability: {details['vulnerability']}")
+      print(f"  Type count: {details['Type count']}")
+      print(f"  Combined Score: {details['combined_score']}")
+      print(f"  Criticality: {details['criticality']}")
+      if details['criticality'] =='Very High':
+        very_high.append(details['host_name'])
+      elif details['criticality'] =='High':
+        high.append(details['host_name'])
+    return [combined_data,very_high,high]
+
+# Function to calculate the combined CVE score for each IP address from nessusScan CSV
+function calculate_cve_score(filename):
+    # Function implementation remains unchanged
+        # Function to read the nessusScan CSV and calculate the combined CVE score for each IP address (same as before)
+    cve_scores = {}
+    with open(filename, 'r') as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip the header row
+        for row in reader:
+            cve = row[0]
+            score_str = row[1]
+            host = row[3].strip()  
+            if score_str:  # Check if the score string is not empty
+                try:
+                    score = float(score_str)
+                    if host not in cve_scores:
+                        cve_scores[host] = 0.0
+                    cve_scores[host] += score
+                except ValueError:
+                    print(f"Invalid score value '{score_str}' for host '{host}'")
+
+# Function to get severity scores from qualysScan CSV
+function get_severity_scores(filename):
+    # Function to read the severity scores from qualysScan CSV (same as before)
+    severity_scores = {}
+    with open(filename, 'r') as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip the header row
+        for row in reader:
+            severity_str = row[5]  # The Severity column is at index 5
+            host_ip = row[0].strip()  # Remove leading/trailing spaces from IP
+            host_name = row[9].strip()  # Host Name column is at index 9
+            vuln_type = row[4].strip()
+            if vuln_type == "Practice" and severity_str:  # Check if it's of type Practice and severity string is not empty
+                try:
+                    score = float(severity_str)
+                    if host_ip not in severity_scores:
+                        severity_scores[host_ip] = {'score': 0.0, 'host_name': host_name,'Type': len([vuln_type])}
+                    severity_scores[host_ip]['score'] += score
+                except ValueError:
+                    print(f"Invalid severity value '{severity_str}' for IP '{host_ip}' and host name '{host_name}'")
+
+    return severity_scores
+
+# Function to calculate the criticality based on the combined score
+function calculate_criticality(combined_score):
+    # Function to calculate the criticality based on the combined score (same as before)
+    if combined_score < 5:
+        return "Low"
+    elif combined_score >= 5 and combined_score < 7:
+        return "Medium"
+    elif combined_score >= 7 and combined_score < 10:
+        return "High"
+    else:
+        return "Very High"
+
+Function send_sms(msg, phone_number):
+    # This function sends an SMS message to the specified phone number with the given message.
+
+    # Implement the code to send an SMS using an SMS gateway or service here.
+    # You may need to use an external API or library to accomplish this.
+    # For the sake of pseudocode, assume that the SMS is successfully sent.
+
+    Print "Sending SMS to " + phone_number + "..."
+    Print "Message: " + msg
+
+    # Return a success message or status code to indicate that the SMS was sent successfully.
+    Return "SMS sent successfully"
+
+End Function
+
+
+Function send_sms_to_specific_persons(details):
+    # This function determines which person(s) to send the SMS based on the criticality and hostname in the details.
+
+    # Define phone numbers for different recipients.
+    It_security_officer_phone = "+447447929418"
+    System_admin_phone = "+447447929418"
+    Operator_phone = "+447447929418"
+
+    If (details['host_name'] is in ['SCADA1', 'SCADA2', 'workstation', 'webserver']):
+        If (details['criticality'] == 'Very High'):
+            # Send SMS to IT Security Officers
+            msg = "🔴🔴🔴\n\nVERY HIGH LEVEL ALERT:\n\nDear IT Security Officers,\n\nThis device 
+            (" + details['host_name'] + ") is at "+details['criticality']+" risk of being compromised.
+            \n\nYou MUST take an URGENT action IMMEDIATELY.\n\n\nRisk Assessment Team"
+            send_sms(msg, It_security_officer_phone)
+
+        ElseIf (details['criticality'] == 'High'):
+            # Send SMS to System Admin
+            msg = "🟠🟠🟠\n\nHIGH LEVEL ALERT:\n\nDear System Admin,\n\nThis device (" + details['host_name'] + ") 
+            is at "+details['criticality']+" risk of being compromised.
+            \n\nYou MUST take an URGENT action ASAP.\n\n\nRisk Assessment Team"
+            
+            send_sms(msg, System_admin_phone)
+
+        ElseIf (details['criticality'] == 'Medium'):
+            # Send SMS to System Admin
+            msg = "🟡🟡🟡\n\nMEDIUM LEVEL ALERT:\n\nDear System Admin,\n\nThis device (" + details['host_name'] + ") 
+            is at "+details['criticality']+" risk of being compromised.
+            \n\nYou SHOULD take an APPROPRIATE action soon.\n\n\nRisk Assessment Team"
+            
+            send_sms(msg, System_admin_phone)
+
+        Else:
+            # Send SMS to System Admin
+            msg = "🟢🟢🟢\n\nLOW LEVEL ALERT:\n\nDear System Admin,\n\nThis device (" + details['host_name'] + ") 
+            is at "+details['criticality']+" risk of being compromised.
+            \n\nYou SHOULD take an APPROPRIATE action soon.\n\n\nRisk Assessment Team"
+            
+            send_sms(msg, System_admin_phone)
+
+    ElseIf (details['host_name'] is in ['PLC1', 'PLC2']):
+        If (details['criticality'] == 'Very High'):
+            # Send SMS to Operator and IT Security Officers
+            operator_msg = "🔴🔴🔴\n\nVERY HIGH LEVEL ALERT:\n\nDear Operator,\n\nThis device (" + details['host_name'] + ") 
+            is at "+details['criticality']+" risk of being compromised.\n\nYou MUST take an URGENT action IMMEDIATELY.
+            \n\n\nRisk Assessment Team"
+            it_security_msg = "🔴🔴🔴\n\nVERY HIGH LEVEL ALERT:\n\nDear IT Security Officers,
+            \n\nThis device (" + details['host_name'] + ") is at "+details['criticality']+" 
+            risk of being compromised.\n\nYou MUST take an URGENT action IMMEDIATELY.\n\n\nRisk Assessment Team"
+            
+            send_sms(operator_msg, Operator_phone)
+            send_sms(it_security_msg, It_security_officer_phone)
+
+        ElseIf (details['criticality'] == 'High'):
+            # Send SMS to Operator and IT Security Officers
+            operator_msg = "🟠🟠🟠\n\nHIGH LEVEL ALERT:\n\nDear Operator,\n\nThis device 
+            (" + details['host_name'] + ") is at "+details['criticality']+" risk of being compromised.
+            \n\nYou MUST take an URGENT action ASAP.\n\n\nRisk Assessment Team"
+            
+            it_security_msg = "🟠🟠🟠\n\nHIGH LEVEL ALERT:\n\nDear IT Security Officers,
+            \n\nThis device (" + details['host_name'] + ") is at "+details['criticality']+" risk of being compromised.
+            \n\nYou MUST take an URGENT action ASAP.\n\n\nRisk Assessment Team"
+            
+            send_sms(operator_msg, Operator_phone)
+            send_sms(it_security_msg, It_security_officer_phone)
+
+        ElseIf (details['criticality'] == 'Medium'):
+            # Send SMS to Operator
+            msg = "🟡🟡🟡\n\nMEDIUM LEVEL ALERT:\n\nDear Operator,\n\n
+            This device (" + details['host_name'] + ") is at "+details['criticality']+" 
+            risk of being compromised.\n\nYou SHOULD take an APPROPRIATE action soon.\n\n\nRisk Assessment Team"
+            
+            send_sms(msg, Operator_phone)
+
+        Else:
+            # Send SMS to Operator
+            msg = "🟢🟢🟢\n\nLOW LEVEL ALERT:\n\nDear Operator,\n\nThis device (" + details['host_name'] + ")
+             is at "+details['criticality']+" risk of being compromised.
+             \n\nYou SHOULD take an APPROPRIATE action soon.\n\n\nRisk Assessment Team"
+            send_sms(msg, Operator_phone)
+    End If
+End Function
+
+
+# Main function
+function main():
+    vertices = read_vertices_csv('uploads/VERTICES.CSV')
+    read_arcs_csv('uploads/ARCS.CSV', vertices)
+
+    search_value = 'attackerLocated(internet)'
+    starting_node = None
+    for each node_number, node_info in vertices:
+        if search_value in node_info["description"]:
+            starting_node = node_number
+            break
+
+    all_paths_to_1 = []
+    all_paths_to_30 = []
+    
+    dfs(starting_node, [], 1.0, all_paths_to_1, all_paths_to_30, set(), vertices)
+
+    cve_scores = calculate_cve_score('uploads/cyberlab_nessusScan.csv')
+    severity_scores = get_severity_scores('uploads/cyberlab_qualysScan.csv')
+
+    # Combine cve_scores and severity_scores into the risk dictionary
+
+    paths = {}
+    for each path, prob in all_paths_to_1:
+        # Calculate path related data and store in paths dictionary
+        print(f"Path to 1: {path}, Probability: {prob}")
+        print('Related Hosts and its vulnerability,combined_score,and criticality')
+        criticality = get_host_cve(path, risk,arcs,vertices_df)
+        paths[tuple(path)] = {  # Use tuple(path) because lists are not hashable and cannot be dictionary keys
+            'very_high_count': len(criticality[1]),
+            'very_high_count': len(criticality[1]),
+            'high_count': len(criticality[2]),
+        }
+
+    for each path, prob in all_paths_to_30:
+        # Calculate path related data and store in paths dictionary
+        print(f"Path to 30: {path}, Probability: {prob}")
+        print('Related Hosts and its vulnerability,combined_score,and criticality')
+        criticality = get_host_cve(path, risk,arcs,vertices_df)
+        paths[tuple(path)] = {  # Use tuple(path) again
+            'very_high_count': len(criticality[1]),
+            'high_count': len(criticality[2]),
+        }
+
+    most_critical_path = find most critical path in paths
+    print "Most critical path:", most_critical_path
+    print "Very High Count:", paths[most_critical_path]['very_high_count']
+    print "High Count:", paths[most_critical_path]['high_count']
+
+# Run the main function if this script is executed as the main module
+if __name__ is "__main__":
+    main()

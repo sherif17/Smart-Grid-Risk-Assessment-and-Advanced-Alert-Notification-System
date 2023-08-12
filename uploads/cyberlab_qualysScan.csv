@@ -1,0 +1,23 @@
+IP,DNS,IP Status,Title,Type,Severity,Port,Protocol,CVE ID,Host Name,Bugtraq ID,Threat,Impact,Solution,Exploitability,Associated Malware,Results,PCI Vuln,Instance,Category,,,,
+192.168.1.5,192.168.1.5,"host scanned, found vuln",ICMP Timestamp Request Remote Date Disclosure,Vuln,2.1,0,icmp,CVE-1999-0524,Webserver,remote exploit/privilage esclation,,,,,,,,,,,remote exploit/privilage esclation,CVE-1999-0524,Webserver
+192.168.1.5,192.168.1.5,"host scanned, found vuln",DNS Server Allows Remote Clients to Snoop the DNS Cache,Practice,2.2,22,tcp,,Webserver,,,,,,,,,,,,remote exploit/privilage esclation,CVE-1999-0524,Workstation
+192.168.1.10,192.168.1.10,"host scanned, found vuln",Microsoft Internet Explorer do not properly handle table operations,Vuln,5,8888,tcp,CVE-2009-1918,Workstation,remote exploit/privilage esclation,,,,,,,,,,,remote exploit/compromize system,CVE-1999-0517,Plc1
+192.168.1.10,192.168.1.10,"host scanned, found vuln",SSL Certificate Expiry,Practice,4.5,,tcp,,Workstation,,,,,,,,,,,,remote exploit/privilage esclation,CVE-1999-0524,SCADA1
+192.168.1.90,192.168.1.90,"host scanned, found vuln",SNMP Agent Default Community Name (public),Vuln,4,502,modbus,CVE-1999-0517,PLC1,,,,,,,,,,,,local exploit/privilage esclation,CVE-2018-5313,SCADA1
+192.168.1.100,192.168.1.100,"host scanned, found vuln",A vulnerability allows local attackers to escalate privilege on Rapid Scada 5.5.0 because of weak C:\SCADA permissions.,Vuln,3.5,8000,tcp,CVE-2018-5313,SCADA2,remote exploit/privilage esclation,,,,,,,,,,,local and remote exploit/privilage esclation,CVE-2022-26827,file server
+192.168.1.100,192.168.1.100,"host scanned, found vuln",SSH Weak Algorithms Supported,Practice,1,22,tcp,,SCADA2,,,,,,,,,,,,,,
+192.168.1.150,192.168.1.150,"host scanned, found vuln",ICMP Timestamp Request Remote Date Disclosure,Vuln,1.4,0,icmp,CVE-1999-0524,SCADA1,,CVE-2010-2549,local exploit/privilage esclation,,,,,,,,,,,
+192.168.1.150,192.168.1.150,"host scanned, found vuln",A vulnerability allows local attackers to escalate privilege on Rapid Scada 5.5.0 because of weak C:\SCADA permissions.,Vuln,4,8080,tcp,CVE-2018-5313,SCADA1,,,,,,,,,,,,,,
+192.168.1.150,192.168.1.150,"host scanned, found vuln",SSL Self-Signed Certificate,Practice,3,443,tcp,,SCADA1,remote exploit/execute code ,,,,,,,,,,,,,
+192.168.1.66,192.168.1.66,"host scanned, found vuln",Windows File Server Resource Management Service Elevation of Privilege Vulnerability,Vuln,3.6,443,tcp,CVE-2022-26827,Fileserver,remote exploit/execute code ,,,,,,,,,,,,,s
+192.168.1.85,192.168.1.85,,,Practice,1,,,CVE-2018-5314,PLC2,remote exploit/compromize system,,,,,,,,,,,,,
+192.168.1.50,192.168.1.50,,,Practice,2,,,CVE-2018-5315,,remote exploit/privilage esclation,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,local exploit/privilage esclation,,,,,,,,,,,,,
+,,,,,,,,,,local exploit/privilage esclation,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,remote exploit/privilage esclation,,,,,,,,,,,,,
+,,,,,,,,,,local exploit/privilage esclation,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,local and remote exploit/privilage esclation,,,,,,,,,,,,,
